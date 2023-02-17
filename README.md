@@ -18,6 +18,8 @@ Branching strategy:
 - dev: integration branch
 - feature branches: feature development
 
+When working on a feature of the project, branch from dev to a new feature branch and open a PR back to dev when ready. When tested on hw will merge to stable main.
+
 ```mermaid
 gitGraph
     commit

@@ -17,6 +17,7 @@ export interface User {
 const Home: NextPage = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState<User>({id: '', token: ''});
+  const [showSessionsList, setShowSessionsList] = useState<Boolean>(true);
   return (
     <>
       <Head>
@@ -26,14 +27,8 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
         <div className={styles.root}>
-          <div className={styles.header}>
-            {authenticated && (
-              <button onClick={() => setAuthenticated(false)}>LOGOUT</button>
-            )}
-
-          </div>
           <main className={styles.main}>
-            {authenticated ? <Data user={user}/> : <Login setAuthenticated={setAuthenticated} setUser={setUser}/>}
+            {authenticated ? <Data user={user} showSessionsList={showSessionsList} setAuthenticated={setAuthenticated}/> : <Login setAuthenticated={setAuthenticated} setUser={setUser}/>}
           </main>
 
         </div>

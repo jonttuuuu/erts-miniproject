@@ -3,8 +3,8 @@ import {useState} from 'react';
 import styles from '@/styles/Home.module.css'
 
 interface LoginProps {
-    setAuthenticated: React.Dispatch<React.SetStateAction<boolean>>,
-    setUser: React.Dispatch<React.SetStateAction<User>>
+    setAuthenticated: Function,
+    setUser: Function
 }
 
 const Login = (
@@ -35,28 +35,12 @@ const Login = (
         })
     };
     return (
-        <div className={styles.col}>
-            <h2 style={{ textAlign: 'center'}}>LOGIN</h2>
-            <div className={styles.row}>
-                <div className={styles.col}>
-                    <p>
-                        Username:
-                    </p>
-                    <p>
-                    Password:
-                    </p>
-                </div>
-                <div className={styles.col}>
-                    <input type='text' value={username} onChange={(v) => setUsername(v.target.value)}/>
-                    <input
-                        type='password'
-                        value={password}
-                        onChange={(v) => setPassword(v.target.value)}
-                        onKeyDown={(event) => event.key === 'Enter' && handleLogin()}
-                    />
-                </div>
-                    <button onClick={() => handleLogin()}>LOGIN</button>
-                </div>
+        <div className={styles.loginContainer}>
+            <div className={styles.loginActions}>
+                <input className={styles.input} type="text" placeholder="Username" />
+                <input className={styles.input} type="password"  placeholder="Password" />
+                <button className={styles.input} onClick={() => handleLogin()}>LOGIN</button>
+            </div>
         </div>
     )
 };

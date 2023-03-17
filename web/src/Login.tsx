@@ -1,7 +1,5 @@
-import {User} from '../pages/index';
-import {useState} from 'react';
-import styles from '@/styles/Home.module.css'
-
+import React, {useState} from 'react';
+import styles from './styles/Home.module.css'
 interface LoginProps {
     setAuthenticated: Function,
     setUser: Function
@@ -13,6 +11,7 @@ const Login = (
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
+        setAuthenticated(true);
         fetch('/api/login', {
             method: 'POST',
             body: JSON.stringify({username, password})

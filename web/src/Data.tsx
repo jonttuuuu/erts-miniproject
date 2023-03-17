@@ -1,10 +1,10 @@
-import {User} from '../pages/index'
-import styles from '@/styles/Home.module.css'
+import React from 'react'
+import {User} from './App'
+import styles from './styles/Home.module.css'
 import { useEffect, useState,useMemo } from 'react';
 
 interface DataProps {
     user: User,
-    showSessionsList: Boolean,
     setAuthenticated: Function,
 }
 interface SessionType {
@@ -36,7 +36,7 @@ const Session = ( {selected}: SessionType | any) => {
         <>
             <div className={styles.sessionContainer}>
 
-                
+
                 <div className={styles.sectionTitle}>
                     {name} on {selected.session?.date}
                 </div>
@@ -72,7 +72,7 @@ const Session = ( {selected}: SessionType | any) => {
         </>
     )
 }
-const Data = ( {user, showSessionsList, setAuthenticated} : DataProps) => {
+const Data = ( {user, setAuthenticated} : DataProps) => {
 
     const [data, setData] = useState([]);
     const [selected, setSelected ] = useState(null);
@@ -91,10 +91,6 @@ const Data = ( {user, showSessionsList, setAuthenticated} : DataProps) => {
         .catch((e) => console.error(e))
     },[]);
 
-    useEffect(() => {
-        console.log('list showing:',showSessionsList);
-    },[showSessionsList]);
-
     return (
         <div className={styles.row}>
             <div className={styles.sidePanel}>
@@ -108,7 +104,7 @@ const Data = ( {user, showSessionsList, setAuthenticated} : DataProps) => {
             </div>
             <div className={styles.info}>
                 {selected && <Session selected={selected}/>}
-                {!selected && 
+                {!selected &&
                     <div className={styles.col} style={{textAlign:'center',justifyContent:'center', height: '100%'}}>
                         Select a workout to display its data
                     </div>

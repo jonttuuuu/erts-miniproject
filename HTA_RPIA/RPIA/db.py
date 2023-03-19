@@ -39,11 +39,22 @@ class HubDatabase:
         self.con = sqlite3.connect(DB_FILE_NAME, check_same_thread=False)
         self.cur = self.con.cursor()
 
+        create_table_sql = f"create table if not exists {DB_SESSION_TABLE['name']} ({', '.join(DB_SESSION_TABLE['cols'])})"
+        self.cur.execute(create_table_sql)
+
+        self.con.commit()
+
+    """lock object so multithreaded use of the same HubDatabase object is safe.
+    def __init__(self):
+        self.con = sqlite3.connect(DB_FILE_NAME, check_same_thread=False)
+        self.cur = self.con.cursor()
+
         for t in (DB_SESSION_TABLE):
             create_table_sql = f"create table if not exists {t['name']} ({', '.join(t['cols'])})"
             self.cur.execute(create_table_sql)
-
+    
         self.con.commit()
+    """
 
     def save(self, s: hike.HikeSession):
         sessions = self.get_sessions()

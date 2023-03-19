@@ -6,8 +6,9 @@ from flask import Response
 import db
 import hike
 
-app = Flask(__name__)
 hdb = db.HubDatabase()
+app = Flask(__name__)
+
 
 @app.route('/')
 def get_home():

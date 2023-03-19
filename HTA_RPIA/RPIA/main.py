@@ -3,12 +3,10 @@ import hike
 import json
 import db
 from enum import Enum
-
+import ble
 
 Data_base = db.HubDatabase() #init database
 
-
-#State = Enum('WiFi', 'BLE', 'read_json', 'last_session', 'save')
 
 class State(Enum):
     WiFi = 1
@@ -24,46 +22,84 @@ def read_json():
 
     return sessions
 
-def last_session(sessions , last_session_id):
+def last_session_extract(sessions , ls):
+    
+    print('last session', ls)
+    
     
     new_sessions = []
 
     print("session ", sessions, "len ", sessions[-1]['id'])
-
-    r = sessions[-1]['id'] - last_session_id
-
-    for i in range(r):
+    
+    if ls == sessions[-1]:
+        print("no new session")
+        return None, ls  
+    else:
+        print("new session",ls['id'], sessions[-1]['id'])
         
-        last_session_id = last_session_id + 1
-
-        s = hike.HikeSession()
-        
-        s.km = float(sessions[last_session_id-1]['distance'])
-        s.steps = int(sessions[last_session_id-1]['stepcount'])
-        s.id = int(sessions[last_session_id-1]['id'])
-        s.calc_kcal()
-        new_sessions.append(s)
-        
-        print("New session added: ", last_session_id)
-        
-        
-    return new_sessions, last_session_id
-
+        if ls['id'] < sessions[-1]['id']: #if new session is added
+            print("new sessions added")
+            ls = sessions[-1]
+            
+            r = sessions[-1]['id'] - ls['id']
+            
+            for i in range(r):
+                s = hike.HikeSession()
+                
+                s.id = int(sessions[ls['id'] + 1]['id'])
+                s.stepcount = int(sessions[ls['id'] + 1]['stepcount'])
+                s.km = float(sessions[ls['id'] + 1]['distance'])
+                s.calc_kcal()
+                new_sessions.append(s)
+                ls = sessions[ls['id'] + 1]
+                print("new session added", new_sessions)
+                    
+           
+        ########################################    If new session is not added
+        else:
+            print("new session not added")
+            r = sessions[-1]['id']
+            for i in range(r):
+                s = hike.HikeSession()
+                
+                s.id = int(sessions[ls['id'] + 1]['id'])
+                s.stepcount = int(sessions[ls['id'] + 1]['stepcount'])
+                s.km = float(sessions[ls['id'] + 1]['distance'])
+                s.calc_kcal()
+                new_sessions.append(s)
+                ls = sessions[ls['id'] + 1]
+                
+        return new_sessions, ls
+            
+            
 
     
     
 def BLE_process():
-    pass
+    s = ble.ble_process()
+    return s
+
+def string_to_json(s):
+    json_string = json.loads(s)
+    return json_string
 
 def main():
 
-    current_state = State.WiFi
+    current_state = State.BLE
     s = None
-    last_session_id = 0
+    ls = hike.HikeSession() #needs to be a json object
+    ls.id = 0
+    ls.stepcount = 0
+    ls.km = 0
+    ls.kcal = 0
+    
+    sessions = None
+    
     while(True):
         ########################################    File download states
         if current_state == State.WiFi:
             try:
+                print("Trying to download file using WiFi")
                 ftp_server.file_process()
                 print("File downloaded using WiFi")
                 current_state = State.read_json
@@ -72,15 +108,17 @@ def main():
                 break
         if current_state == State.BLE:
             try:
+                print("Trying to download file using BLE")
                 sessions = BLE_process()
-                print("File downloaded using BLE")
-                current_state = State.read_json
+                print("File downloaded using BLE ", sessions)
+                current_state = State.last_session
             except:
                 current_state = State.WiFi
                 break
         ########################################    File read state
         if current_state == State.read_json:
             try:
+                print("Trying to read file")
                 sessions = read_json()
                 print("File read")
                 current_state = State.last_session
@@ -90,7 +128,8 @@ def main():
         ########################################    Reading last session state
         if current_state == State.last_session:
             try:
-                s, last_session_id= last_session(sessions, last_session_id)
+                print("Trying to read last session")
+                s, ls= last_session_extract(sessions, ls)
                 print("Last session read")
                 current_state = State.save
             except:
@@ -99,6 +138,7 @@ def main():
         ########################################    Saving last session state to database
         if current_state == State.save:
             try:
+                print("Trying to save last session")
                 #TODO   improve so it does not owerwrite the whole database
                 print("s len ", len(s))
                 for i in range(len(s)):
@@ -112,7 +152,6 @@ def main():
         ########################################    End of states
 
 
-  
 if __name__ == "__main__":
     main()
 

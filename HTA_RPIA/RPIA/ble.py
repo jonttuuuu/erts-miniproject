@@ -1,50 +1,38 @@
 from bluepy.btle import Peripheral, UUID, DefaultDelegate
-import time
+import json
 
-
-class NotificationDelegate(DefaultDelegate):
-    def handleNotification(self, handle, value):
-        notification_callback(handle, value)
 
 
 # Set the UUID of the characteristic you want to read/write/subscribe to
-CHARACTERISTIC_UUID = UUID('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
+CHARACTERISTIC_UUID = UUID('a8c339e5-1d37-4ff6-90ff-a8edeed316e6')
+
 
 # Set the MAC address of the BLE device you want to connect to
-DEVICE_MAC_ADDRESS = 'XX:XX:XX:XX:XX:XX'
-
-# Subscribe to notifications from a characteristic
-def notification_callback(handle, value):
-    print(f'Received notification: {value}')
+DEVICE_MAC_ADDRESS = '08:3A:F2:69:AB:CE'
 
 
-def main():
-    # Connect to the device
-    device = Peripheral(DEVICE_MAC_ADDRESS)
 
-    # Read from a characteristic
-    value = device.readCharacteristic(CHARACTERISTIC_UUID)
-    print(f'Received value: {value}')
+def ble_process():
+    dev = Peripheral(DEVICE_MAC_ADDRESS)
+    characteristics = dev.getCharacteristics()
 
-    # Write to a characteristic
-    device.writeCharacteristic(CHARACTERISTIC_UUID, b'Hello, device!')
-    print('Value written.')
+    s = None
+
+    for char in characteristics:
+        
+        if(char.uuid == CHARACTERISTIC_UUID ):
+        # print("=== !CHARACTERISTIC_UUID matched! ==")
+            #print(char)
+            #print(dir(char))
+            #print(char.getDescriptors)
+            #print(char.propNames)
+            #print(char.properties)
+            #print(type(char.read()))
+            s = char.read()
+            #print(char.read())
+
+    s = s.decode("utf-8")
+    s = json.loads(s)
     
-
-    device.withDelegate(NotificationDelegate())
-    device.writeCharacteristic(CHARACTERISTIC_UUID + 1, b'\x01\x00') # Enable notifications
-    print('Notifications subscribed.')
-
-    # Wait for some time
-    time.sleep(10)
-
-    # Unsubscribe from notifications
-    device.writeCharacteristic(CHARACTERISTIC_UUID + 1, b'\x00\x00') # Disable notifications
-    print('Notifications unsubscribed.')
-
-    # Disconnect from the device
-    device.disconnect()
-    print('Disconnected.')
-
-if __name__ == '__main__':  
-    main()
+    return s
+    

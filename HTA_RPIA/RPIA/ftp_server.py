@@ -12,6 +12,7 @@ def file_process():
     
     try:
         #ftp_server = open_connection(timeout = 10000)
+        print("Connecting")
         ftp_server = open_connection()
         print("Connected")
         download_file(ftp_server, FILENAME)
@@ -87,7 +88,7 @@ def choice():
 
 def open_connection():
     # Connect FTP Server
-    ftp_server = ftplib.FTP(HOSTNAME, USERNAME, PASSWORD, timeout= 5000)
+    ftp_server = ftplib.FTP(HOSTNAME, USERNAME, PASSWORD, timeout= 2)
     
     # force UTF-8 encoding
     ftp_server.encoding = "utf-8"

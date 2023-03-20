@@ -51,7 +51,7 @@ def last_session_extract(sessions , ls):
                 
                 s.steps = int(sessions[ls['id']]['stepcount'])
                 
-                s.km = int(sessions[ls['id']]['distance'])
+                s.km = float(sessions[ls['id']]['distance'])/1000
                
                 s.calc_kcal()
                 

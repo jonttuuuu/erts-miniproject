@@ -15,4 +15,4 @@ sudo npm install -g serve
 serve -s build -l 3000
 ```
 
-5. The app can be accessed by navigating to `http://locahost:3000`
+5. The app can be accessed by navigating to `http://localhost:3000`

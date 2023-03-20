@@ -1,6 +1,6 @@
 import sqlite3
 
-import hike
+import hike as hike
 import threading
 
 DB_FILE_NAME = 'sessions.db'

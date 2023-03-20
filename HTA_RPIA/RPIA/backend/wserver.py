@@ -4,8 +4,8 @@ from flask import jsonify
 from flask import Response
 from flask_cors import CORS
 
-import db
-import hike
+import db as db
+import hike as hike
 
 hdb = db.HubDatabase()
 app = Flask(__name__)

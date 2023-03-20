@@ -1,9 +1,9 @@
-import ftp_server
-import hike
+import ftp_server as ftp_server
+import hike as hike
 import json
-import db
+import db as db
+import ble as ble
 from enum import Enum
-import ble
 
 Data_base = db.HubDatabase() #init database
 

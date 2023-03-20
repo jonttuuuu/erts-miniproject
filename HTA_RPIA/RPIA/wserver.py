@@ -2,12 +2,14 @@ from flask import Flask
 from flask import render_template
 from flask import jsonify
 from flask import Response
+from flask_cors import CORS
 
 import db
 import hike
 
 hdb = db.HubDatabase()
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/')
@@ -19,7 +21,6 @@ def get_home():
 def get_sessions():
     sessions = hdb.get_sessions() 
     sessions = list(map(lambda s: hike.to_list(s), sessions))
-    print(sessions)
     return jsonify(sessions)
 
 @app.route('/sessions/<id>')

@@ -9,12 +9,18 @@ FILENAME = "hikeLogs.json"
 
 def file_process():
     
-    ftp_server = open_connection()
+    
     try:
+        #ftp_server = open_connection(timeout = 10000)
+        ftp_server = open_connection()
+        print("Connected")
         download_file(ftp_server, FILENAME)
+        print("file dowloaded")
         close_connection(ftp_server)
+        print("connection closed")
         return True
-    except KeyboardInterrupt:
+    except Exception:
+        print("connection failed")
         close_connection(ftp_server)
         return False
 
@@ -81,7 +87,7 @@ def choice():
 
 def open_connection():
     # Connect FTP Server
-    ftp_server = ftplib.FTP(HOSTNAME, USERNAME, PASSWORD)
+    ftp_server = ftplib.FTP(HOSTNAME, USERNAME, PASSWORD, timeout= 5000)
     
     # force UTF-8 encoding
     ftp_server.encoding = "utf-8"

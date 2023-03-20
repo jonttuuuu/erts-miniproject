@@ -13,26 +13,23 @@ DEVICE_MAC_ADDRESS = '08:3A:F2:69:AB:CE'
 
 
 def ble_process():
+    print("Trying to connect to BLE device")
     dev = Peripheral(DEVICE_MAC_ADDRESS)
     characteristics = dev.getCharacteristics()
-
+    print("Connected to BLE device")
     s = None
-
-    for char in characteristics:
+    try:
+        for char in characteristics:
+            
+            if(char.uuid == CHARACTERISTIC_UUID ):
         
-        if(char.uuid == CHARACTERISTIC_UUID ):
-        # print("=== !CHARACTERISTIC_UUID matched! ==")
-            #print(char)
-            #print(dir(char))
-            #print(char.getDescriptors)
-            #print(char.propNames)
-            #print(char.properties)
-            #print(type(char.read()))
-            s = char.read()
-            #print(char.read())
+                s = char.read()
+                
 
-    s = s.decode("utf-8")
-    s = json.loads(s)
-    
+        s = s.decode("utf-8")
+        s = json.loads(s)
+        print("File downloaded using BLE ", s)
+    except:
+        print("Failed to download file using BLE")
     return s
     

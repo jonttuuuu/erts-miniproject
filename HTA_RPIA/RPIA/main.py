@@ -24,6 +24,7 @@ def read_json():
 
 def last_session_extract(sessions , ls):
     
+   
     print('last session', ls)
     
     
@@ -31,30 +32,37 @@ def last_session_extract(sessions , ls):
 
     print("session ", sessions, "len ", sessions[-1]['id'])
     
-    if ls == sessions[-1]:
+    if ls['id'] == sessions[-1]['id']:
         print("no new session")
-        return None, ls  
+         
     else:
         print("new session",ls['id'], sessions[-1]['id'])
         
         if ls['id'] < sessions[-1]['id']: #if new session is added
-            print("new sessions added")
-            ls = sessions[-1]
-            
-            r = sessions[-1]['id'] - ls['id']
+            print("##########")            
+            print("ls ", ls)
+            r = sessions[-1]['id'] - ls['id'] #
+            print("r ", r)
             
             for i in range(r):
                 s = hike.HikeSession()
                 
-                s.id = int(sessions[ls['id'] + 1]['id'])
-                s.stepcount = int(sessions[ls['id'] + 1]['stepcount'])
-                s.km = float(sessions[ls['id'] + 1]['distance'])
+                s.id = int(sessions[ls['id']]['id'])
+                
+                s.steps = int(sessions[ls['id']]['stepcount'])
+                
+                s.km = int(sessions[ls['id']]['distance'])
+               
                 s.calc_kcal()
+                
                 new_sessions.append(s)
-                ls = sessions[ls['id'] + 1]
-                print("new session added", new_sessions)
-                    
-           
+                
+                ls = sessions[ls['id']]
+                ls['id'] = s.id
+                print("new session ", ls , s)              
+                               
+                
+        
         ########################################    If new session is not added
         else:
             print("new session not added")
@@ -62,14 +70,22 @@ def last_session_extract(sessions , ls):
             for i in range(r):
                 s = hike.HikeSession()
                 
-                s.id = int(sessions[ls['id'] + 1]['id'])
-                s.stepcount = int(sessions[ls['id'] + 1]['stepcount'])
-                s.km = float(sessions[ls['id'] + 1]['distance'])
-                s.calc_kcal()
-                new_sessions.append(s)
-                ls = sessions[ls['id'] + 1]
+                s.id = int(sessions[ls['id']]['id'])
                 
-        return new_sessions, ls
+                s.steps = int(sessions[ls['id']]['stepcount'])
+                
+                s.km = int(sessions[ls['id']]['distance'])
+               
+                s.calc_kcal()
+                
+                new_sessions.append(s)
+                
+                ls = sessions[ls['id']]
+                ls['id'] = s.id
+                print("new session ", ls , s)    
+        
+                
+    return new_sessions, ls
             
             
 
@@ -85,13 +101,10 @@ def string_to_json(s):
 
 def main():
 
-    current_state = State.BLE
+    current_state = State.WiFi
     s = None
-    ls = hike.HikeSession() #needs to be a json object
-    ls.id = 0
-    ls.stepcount = 0
-    ls.km = 0
-    ls.kcal = 0
+    
+    ls = string_to_json('{"id": 0, "stepcount": 0, "distance": 0}')
     
     sessions = None
     
@@ -100,21 +113,31 @@ def main():
         if current_state == State.WiFi:
             try:
                 print("Trying to download file using WiFi")
-                ftp_server.file_process()
-                print("File downloaded using WiFi")
-                current_state = State.read_json
+                response = ftp_server.file_process()
+                print("response ", response)
+                if response == True:                    
+                    print("File downloaded using WiFi")
+                    current_state = State.read_json
+                else:
+                    current_state = State.BLE
+                    
             except:
                 current_state = State.BLE
-                break
+                
         if current_state == State.BLE:
             try:
                 print("Trying to download file using BLE")
                 sessions = BLE_process()
-                print("File downloaded using BLE ", sessions)
-                current_state = State.last_session
+                if sessions != None:
+                    print("File downloaded using BLE ", sessions)
+                    current_state = State.last_session
+                else:
+                #print("File downloaded using BLE ", sessions)
+                    current_state = State.last_session
             except:
+                print("No BLE")
                 current_state = State.WiFi
-                break
+                
         ########################################    File read state
         if current_state == State.read_json:
             try:
@@ -124,17 +147,20 @@ def main():
                 current_state = State.last_session
             except:
                 current_state = State.WiFi
-                break
+                
         ########################################    Reading last session state
         if current_state == State.last_session:
             try:
                 print("Trying to read last session")
-                s, ls= last_session_extract(sessions, ls)
-                print("Last session read")
-                current_state = State.save
+                s, ls= last_session_extract(sessions, ls)                
+                print("Last session read", len(s))
+                if len(s) > 0:
+                    current_state = State.save
+                else:
+                    current_state = State.WiFi
             except:
                 current_state = State.WiFi
-                break
+                
         ########################################    Saving last session state to database
         if current_state == State.save:
             try:
@@ -143,13 +169,16 @@ def main():
                 print("s len ", len(s))
                 for i in range(len(s)):
                     Data_base.save(s[i])
+                    print("Session saved", s[i])
                 print("Last session saved")
-                current_state = State.WiFi
+                s = None
+                current_state = State.BLE
             except:
-                current_state = State.WiFi
-                break
+                current_state = State.BLE
+                
         
         ########################################    End of states
+
 
 
 if __name__ == "__main__":

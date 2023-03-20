@@ -1,17 +1,10 @@
 import React from 'react'
-import {User} from './App'
-import styles from './styles/Home.module.css'
-import { useEffect, useState,useMemo } from 'react';
+import styles from './styles/Data.module.css'
+import { useEffect, useState } from 'react';
+import config from './config'
 
-interface DataProps {
-    user: User,
-    setAuthenticated: Function,
-}
 interface SessionType {
-    type: string,
-    date: string,
-    startTime: string,
-    endTime: string,
+    id: number,
     calories: number,
     steps: number,
     distance: number,
@@ -20,51 +13,57 @@ interface SessionProps {
     key: number,
     session: SessionType,
     setSelected: Function,
+    refresh: Function
 }
 
-const Card = ( session: SessionProps ) => {
+const Card = ( props: SessionProps ) => {
+
+    const handleDelete = () => {
+        if (!window.confirm('Are you sure you want to permanently delete this session?')) {
+            return;
+        }
+        fetch(`${config.backendAddr}/sessions/${props.session.id}/delete`)
+        .then((response) => {
+            if (!response.ok) {
+                console.log('error:',response)
+            }
+            props.refresh((prev: number) => prev+1);
+        }).catch((e) => console.log('error:',e));
+    };
+
     return (
-        <div className={styles.card} onClick={() => (session.setSelected(session))}>
-            {session.session.type.charAt(0).toUpperCase() + session.session.type.slice(1)}: {session.session.date}
+        <div className={styles.card} onClick={() => (props.setSelected(props.session))}>
+            Hike #{props.session.id} <span style={{ cursor: 'pointer', fontSize: '25px' }}onClick={() => handleDelete()}>&times;</span>
         </div>
     )
 }
 
 const Session = ( {selected}: SessionType | any) => {
-    const name = useMemo(() => selected.session?.type.charAt(0).toUpperCase() + selected.session?.type.slice(1), [selected])
     return (
         <>
             <div className={styles.sessionContainer}>
-
-
                 <div className={styles.sectionTitle}>
-                    {name} on {selected.session?.date}
+                    Hike #{selected.id}
                 </div>
                 <div className={styles.row}>
                     <div className={styles.infoBox}>
                         Step count: <br/>
                         <div className={styles.valueContainer}>
-                            <p className={styles.keyValue}>{selected.session?.steps}</p>
+                            <p className={styles.keyValue}>{selected.steps}</p>
                         </div>
                     </div>
                     <div className={styles.infoBox}>
                         Distance walked: <br/>
                         <div className={styles.valueContainer}>
-                            <p className={styles.keyValue}>{selected.session?.distance} meters</p>
+                            <p className={styles.keyValue}>{selected.distance} km</p>
                         </div>
                     </div>
                 </div>
                 <div className={styles.row}>
                     <div className={styles.infoBox}>
-                        Average heartrate: <br/>
-                        <div className={styles.valueContainer}>
-                            <p className={styles.keyValue}>121</p>
-                        </div>
-                    </div>
-                    <div className={styles.infoBox}>
                         Esimated&nbsp;calories&nbsp;burned: <br/>
                         <div className={styles.valueContainer}>
-                            <p className={styles.keyValue}>{selected.session?.calories}</p>
+                            <p className={styles.keyValue}>{selected.calories}</p>
                         </div>
                     </div>
                 </div>
@@ -72,43 +71,70 @@ const Session = ( {selected}: SessionType | any) => {
         </>
     )
 }
-const Data = ( {user, setAuthenticated} : DataProps) => {
+const Data = () => {
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<SessionType[]>([]);
     const [selected, setSelected ] = useState(null);
+    const [error, setError] = useState(true);
+    const [refresh, triggerRefresh] = useState<number>(0);
 
     useEffect(() => {
-        if (!user){
-            return;
-        }
-        fetch(`/api/data?id=${1}`)
+        fetch(`${config.backendAddr}/sessions`)
         .then((response) => {
             if (response.ok) {
-                return response.json()
+                setError(false);
+                return response.json();
+            }else{
+                setError(true);
             }
         })
-        .then((json) => setData(json))
+        .then((json) => {
+            const newData: SessionType[] = []
+            json.forEach((item: Array<number>) => (
+                newData.push(
+                    {
+                        id: item[0],
+                        distance: item[1],
+                        steps: item[2],
+                        calories: item[3]
+                    }
+                )
+            ))
+            setData(newData)
+        })
         .catch((e) => console.error(e))
-    },[]);
+    },[refresh]);
+
+    useEffect(() => {
+        setSelected(null);
+    },[refresh]);
 
     return (
         <div className={styles.row}>
-            <div className={styles.sidePanel}>
-                <p className={styles.sectionTitle}>Sessions:</p>
-                <div className={styles.cardContainer}>
-                    {data && data.map((session,i) => (
-                        <Card key={i} session={session} setSelected={setSelected}/>
-                        ))}
-                </div>
-                <button className={styles.logout} onClick={() => setAuthenticated(false)}>Log out</button>
-            </div>
-            <div className={styles.info}>
-                {selected && <Session selected={selected}/>}
-                {!selected &&
-                    <div className={styles.col} style={{textAlign:'center',justifyContent:'center', height: '100%'}}>
-                        Select a workout to display its data
+            <div className={styles.sidePanelContainer}>
+                <div className={styles.sidePanel}>
+                    <p className={styles.sectionTitle}>Sessions:</p>
+                    <div className={styles.cardContainer}>
+                        {data && data.map((session,i) => (
+                            <Card key={i} session={session} setSelected={setSelected} refresh={triggerRefresh}/>
+                            ))}
                     </div>
-                }
+                </div>
+            </div>
+            <div className={styles.infoContainer}>
+                <div className={styles.info}>
+                    {selected && <Session selected={selected} key={refresh}/>}
+                    {!selected && (!error ?
+                        (<div className={styles.col} style={{textAlign:'center',justifyContent:'center', height: '100%'}}>
+                            Select a workout to display its data
+                        </div>
+                        ):(
+                            <div className={styles.col} style={{textAlign:'center',justifyContent:'center', height: '100%'}}>
+                            An error occured while loading sessions
+                        </div>
+                        )
+                        )}
+                </div>
             </div>
         </div>
     )

@@ -1,0 +1,118 @@
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 100%;
+    background-color: rgb(78, 174, 255);
+    border-radius: 3px;
+    height: 7vh;
+    max-height: 50px;
+    min-height: 30px;
+    cursor: pointer;
+    justify-content: space-between;
+    padding: 0 1em 0 1em;
+    font-size: large;  
+}
+
+  .sessionContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+.sectionTitle {
+    text-align: center;
+    color: black;
+    font-weight: 550;
+    font-size: 25px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    width: 100%;
+}
+
+.infoBox {
+    background-color: rgb(235, 60, 99);
+    border-radius: 3px;
+    color: white;
+    width: 100%;
+    margin: 0.1em;
+    padding: 0.1rem;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.valueContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.keyValue {
+    font-size: 1.4rem;
+    text-align: center;
+    align-self: center;
+}
+
+
+.sidePanel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    padding: 0.7rem 0.7rem 0.7rem 0.7rem;
+    gap: 3px;
+    border-radius: 3px;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.sidePanelContainer {
+    display: flex;
+    width: 40%;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.cardContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    gap: 3px;
+    border-radius: 3px;
+    justify-content: space-between;
+    overflow-y: scroll;
+}
+.info {
+    background-color: white;
+    width: 100%;
+    margin-left: 1em;
+    border-radius: 3px;
+    padding: 1em;
+    color: black;
+    font-size: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.infoContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  } 

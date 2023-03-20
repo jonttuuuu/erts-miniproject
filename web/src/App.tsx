@@ -1,25 +1,20 @@
-import React, {useState} from 'react';
-import styles from './styles/Home.module.css'
-import './App.css';
+import React from 'react';
+import styles from './styles/App.module.css'
 import Data from './Data'
-import Login from './Login'
 
 export interface User {
-  id: string;
-  token: string;
+    id: string;
+    token: string;
 }
 
 const App = () => {
-  const [authenticated, setAuthenticated] = useState(true);
-  const [user, setUser] = useState<User>({id: '', token: ''});
-  return (
-    <div className={styles.root}>
-    <main className={styles.main}>
-      {authenticated ? <Data user={user} setAuthenticated={setAuthenticated}/> : <Login setAuthenticated={setAuthenticated} setUser={setUser}/>}
-    </main>
-
-  </div>
-  );
+    return (
+        <div className={styles.root}>
+            <main className={styles.main}>
+                <Data/>
+            </main>
+        </div>
+    );
 }
 
 export default App;
